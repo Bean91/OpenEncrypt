@@ -1,4 +1,4 @@
-
+import CodeCard from "./CodeCard.jsx";
 
 function App() {
   function TailwindBreakpointDebugger() {
@@ -15,9 +15,37 @@ function App() {
   }
 
   return (
-    <>
+    <div className="flex justify-center flex-wrap items-center h-screen">
       {/*<TailwindBreakpointDebugger />*/}
-    </>j
+      <CodeCard
+        name="Vigenère Cipher"
+        type="vigenere"
+        onEncode={({ key, message }) => {
+          console.log("Encode with key:", key, "msg:", message);
+        }}
+      />
+      <CodeCard
+        name="Caeser Shift"
+        type="caeser"
+        onEncode={({ key, message }) => {
+          console.log("Encode with key:", key, "msg:", message);
+        }}
+      />
+      <CodeCard
+        name="Affine Cipher"
+        type="affine"
+        onEncode={({ key, message }) => {
+          console.log("Encode with key:", key, "msg:", message);
+        }}
+      />
+      <CodeCard
+        name="Substitution Cipher"
+        type="substitution"
+        onEncode={({ key, message }) => {
+          console.log("Encode with key:", key, "msg:", message);
+        }}
+      />
+    </div>
   )
 }
 
