@@ -1,6 +1,25 @@
+import React, {useState, useEffect} from "react";
 import CodeCard from "./CodeCard.jsx";
+import { loadVigenereWasm } from "./wasm/vigenere.js";
+import { loadCaeserWasm } from "./wasm/caeser.js";
+import { loadAffineWasm } from "./wasm/affine.js";
+import { loadSubstsitutionWasm } from "./wasm/substitution.js";
 
 function App() {
+  const [vigenereModule, setVigenereModule] = useState(null);
+  const [caeserModule, setCaeserModule] = useState(null);
+  const [affineModule, setAffineModule] = useState(null);
+  const [substitutionModule, setSubstitutionModule] = useState(null);
+
+  useEffect(() => {
+    loadVigenereWasm().then(setVigenereModule);
+    loadCaeserWasm().then(setCaeserModule);
+    loadAffineWasm().then(setAffineModule);
+    loadSubstsitutionWasm().then(setSubstitutionModule);
+  }, []);
+
+  if (!vigenereModule || !caeserModule || !affineModule || !substitutionModule) return <p className="text-white p-4">Loading WASM...</p>;
+
   function TailwindBreakpointDebugger() {
     return (
       <div className="fixed bottom-2 right-2 text-white bg-black px-2 py-1 rounded z-50 text-sm">
@@ -21,30 +40,92 @@ function App() {
         name="Vigenère Cipher"
         type="vigenere"
         onEncode={({ key, message }) => {
-          console.log("Encode with key:", key, "msg:", message);
+          return vigenereModule.ccall(
+            "encode",
+            "string",
+            ["string", "string"],
+            [key, message]
+          );
+        }}
+        onDecode={({ key, message }) => {
+          return vigenereModule.ccall(
+            "decode",
+            "string",
+            ["string", "string"],
+            [key, message]
+          );
         }}
       />
       <CodeCard
-        name="Caeser Shift"
-        type="caeser"
+        name="Caesar Shift"
+        type="caesar"
         onEncode={({ key, message }) => {
-          console.log("Encode with key:", key, "msg:", message);
+          return caeserModule.ccall(
+            "encode",
+            "string",
+            ["number", "string"],
+            [key.charCodeAt(0), message]
+          );
+        }}
+        onDecode={({ key, message }) => {
+          return caeserModule.ccall(
+            "decode",
+            "string",
+            ["number", "string"],
+            [key.charCodeAt(0), message]
+          );
         }}
       />
       <CodeCard
         name="Affine Cipher"
         type="affine"
         onEncode={({ key, message }) => {
-          console.log("Encode with key:", key, "msg:", message);
+          const a = Number(key.a);
+          const b = Number(key.b);
+          if (!affineModule) return "";
+          return affineModule.ccall(
+            "encode",
+            "string",
+            ["number", "number", "string"],
+            [a, b, message]
+          );
+        }}
+        onDecode={({ key, message }) => {
+          const a = Number(key.a);
+          const b = Number(key.b);
+          if (!affineModule) return "";
+          return affineModule.ccall(
+            "decode",
+            "string",
+            ["number", "number", "string"],
+            [a, b, message]
+          );
         }}
       />
+
       <CodeCard
         name="Substitution Cipher"
         type="substitution"
         onEncode={({ key, message }) => {
-          console.log("Encode with key:", key, "msg:", message);
+          if (!substitutionModule) return "";
+          return substitutionModule.ccall(
+            "encode",
+            "string",
+            ["string", "string"],
+            [key, message]
+          );
+        }}
+        onDecode={({ key, message }) => {
+          if (!substitutionModule) return "";
+          return substitutionModule.ccall(
+            "decode",
+            "string",
+            ["string", "string"],
+            [key, message]
+          );
         }}
       />
+
     </div>
   )
 }

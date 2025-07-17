@@ -5,6 +5,7 @@ export default function CodeCard({ name, type, onEncode, onDecode }) {
     type === "affine" ? { a: "", b: "" } : ""
   );
   const [msg, setMsg] = useState("");
+  const [answer, setAnswer] = useState("");
 
   const handleKeyChange = (e) => {
     if (type === "affine") {
@@ -18,13 +19,29 @@ export default function CodeCard({ name, type, onEncode, onDecode }) {
       setMsg(e.target.value);
     };
 
-    const handleEncode = () => {
-      onEncode?.({ key, message: msg });
-    };
+  const handleEncode = () => {
+    const result = onEncode?.({ key, message: msg });
+    if (typeof result === "string") {
+      setAnswer(result);
+    } else if (result instanceof Promise) {
+      result.then(setAnswer);
+    }
+  };
 
-    const handleDecode = () => {
-      onDecode?.({ key, message: msg });
-    };
+  const handleSwap = () => {
+    const temp_msg = msg;
+    setMsg(answer);
+    setAnswer(temp_msg);
+  }
+
+  const handleDecode = () => {
+    const result = onDecode?.({ key, message: msg });
+    if (typeof result === "string") {
+      setAnswer(result);
+    } else if (result instanceof Promise) {
+      result.then(setAnswer);
+    }
+  };
 
     const renderKeyInput = () => {
       switch (type) {
@@ -52,11 +69,13 @@ export default function CodeCard({ name, type, onEncode, onDecode }) {
         case "caesar":
           return (
             <input
-              type="number"
+              type="text"
+              maxLength="1"
+              pattern="[a-zA-Z]"
               value={key}
               onChange={handleKeyChange}
-              placeholder="e.g. 3"
-              className="w-full p-2 border rounded-md"
+              placeholder="e.g. C"
+              className="w-full p-2 border rounded-md uppercase"
             />
           );
         case "substitution":
@@ -65,6 +84,8 @@ export default function CodeCard({ name, type, onEncode, onDecode }) {
               type="text"
               value={key}
               onChange={handleKeyChange}
+              maxLength="26"
+              pattern="[a-zA-Z]"
               placeholder="e.g. QWERTYUIOPASDFGHJKLZXCVBNM"
               className="w-full p-2 border rounded-md uppercase"
             />
@@ -130,6 +151,15 @@ export default function CodeCard({ name, type, onEncode, onDecode }) {
             Encode
           </button>
           <button
+            onClick={handleSwap}
+            disabled={!msg || !key}
+            className={`${
+              msg ? "bg-blue-600 hover:bg-blue-700" : "bg-gray-400 cursor-not-allowed"
+            } text-white px-4 py-2 rounded-lg font-medium mx-auto`}
+          >
+            Swap
+          </button>
+          <button
             onClick={handleDecode}
             disabled={!msg || !key}
             className={`${
@@ -138,6 +168,18 @@ export default function CodeCard({ name, type, onEncode, onDecode }) {
           >
             Decode
           </button>
+          </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-200 mb-1">
+            Answer:
+          </label>
+          <textarea
+            value={answer}
+            readOnly={true}
+            placeholder="Returned message..."
+            className="w-full p-2 border rounded-md resize-none"
+            rows={4}
+          />
         </div>
       </div>
     );

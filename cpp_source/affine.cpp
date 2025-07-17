@@ -39,7 +39,7 @@ std::string decode(const std::pair<int, int>& key, const std::string& message) {
     int a = key.first, b = key.second;
     int a_inv = modInverse(a, 26);
     if (a_inv == -1) {
-        return "[ERROR: Invalid key 'a'. No modular inverse exists with mod 26.]";
+        return 2;
     }
 
     for (char p : message) {
