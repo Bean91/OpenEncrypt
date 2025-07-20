@@ -100,6 +100,16 @@ export default function CodeCard({ name, type, onEncode, onDecode }) {
               className="w-full p-2 border rounded-md uppercase"
             />
           );
+        case "playfair":
+          return (
+            <input
+              type="text"
+              value={key}
+              onChange={handleKeyChange}
+              placeholder="e.g. LEMON"
+              className="w-full p-2 border rounded-md uppercase"
+            />
+          );
         default:
           return (
             <input

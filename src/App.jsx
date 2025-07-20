@@ -4,18 +4,21 @@ import { loadVigenereWasm } from "./wasm/vigenere.js";
 import { loadCaeserWasm } from "./wasm/caeser.js";
 import { loadAffineWasm } from "./wasm/affine.js";
 import { loadSubstsitutionWasm } from "./wasm/substitution.js";
+import { loadPlayfairWasm } from "./wasm/playfair.js";
 
 function App() {
   const [vigenereModule, setVigenereModule] = useState(null);
   const [caeserModule, setCaeserModule] = useState(null);
   const [affineModule, setAffineModule] = useState(null);
   const [substitutionModule, setSubstitutionModule] = useState(null);
+  const [playfairModule, setPlayfairModule] = useState(null);
 
   useEffect(() => {
     loadVigenereWasm().then(setVigenereModule);
     loadCaeserWasm().then(setCaeserModule);
     loadAffineWasm().then(setAffineModule);
     loadSubstsitutionWasm().then(setSubstitutionModule);
+    loadPlayfairWasm().then(setPlayfairModule);
   }, []);
 
   if (!vigenereModule || !caeserModule || !affineModule || !substitutionModule) return <p className="text-white p-4">Loading WASM...</p>;
@@ -125,7 +128,28 @@ function App() {
           );
         }}
       />
-
+      <CodeCard
+        name="Playfair Cipher"
+        type="playfair"
+        onEncode={({ key, message }) => {
+          if (!playfairModule) return "";
+          return playfairModule.ccall(
+            "encode",
+            "string",
+            ["string", "string"],
+            [key, message]
+          );
+        }}
+        onDecode={({ key, message }) => {
+          if (!playfairModule) return "";
+          return playfairModule.ccall(
+            "decode",
+            "string",
+            ["string", "string"],
+            [key, message]
+          );
+        }}
+      />
     </div>
   )
 }
